@@ -8,10 +8,8 @@
 let players = document.querySelectorAll(".player__wrapper");
 initPlayers(players);
 
-
 function initPlayers(players) {
-
-  players.forEach(player => {
+  players.forEach((player) => {
     //Get button elements
     const playBtns = player.querySelectorAll(".ab__button");
     const aButton = player.querySelector(".a__button");
@@ -26,77 +24,63 @@ function initPlayers(players) {
     const pauseIcon = '<i class="fa-solid fa-pause"></i>';
     const stopIcon = '<i class="fa-solid fa-stop"></i>';
 
-
     //Default loading state for each sound
     var soundAReady = false;
     var soundBReady = false;
 
-
     //Set up audio elements
     var soundA = document.createElement("audio");
-    soundA.src = player.getAttribute('data-sound-a');
+    soundA.src = player.getAttribute("data-sound-a");
     soundA.preload = "auto";
     soundA.setAttribute("hidden", "true");
     player.append(soundA);
 
-
     var soundB = document.createElement("audio");
-    soundB.src = player.getAttribute('data-sound-b');
+    soundB.src = player.getAttribute("data-sound-b");
     soundB.preload = "auto";
     soundB.setAttribute("hidden", "true");
     player.append(soundB);
 
-
     //playSoundA
-    aButton.addEventListener('click', e => {
+    aButton.addEventListener("click", (e) => {
+      pauseAll();
       playButton.innerHTML = pauseIcon;
       aButton.disabled = true;
       bButton.disabled = false;
       stopButton.disabled = false;
-      if (soundB.currentTime > 0) {
-        soundA.currentTime = soundB.currentTime;
-        soundA.play();
-        soundB.pause();
-      } else {
-        soundA.play();
-        soundB.pause();
-      }
-    })
+      soundA.currentTime = soundB.currentTime;
+      soundA.play();
+    });
 
     //playSoundB
-    bButton.addEventListener('click', e => {
+    bButton.addEventListener("click", (e) => {
+      pauseAll();
       playButton.innerHTML = pauseIcon;
       bButton.disabled = true;
       aButton.disabled = false;
       stopButton.disabled = false;
-      if (soundA.currentTime > 0) {
-        soundB.currentTime = soundA.currentTime;
-        soundB.play();
-        soundA.pause();
-      } else {
-        soundB.play();
-      }
-    })
+      soundB.currentTime = soundA.currentTime;
+      soundB.play();
+    });
 
     //playSoundA
-    soundA.addEventListener('playing', e => {
-      console.log('playing');
+    soundA.addEventListener("playing", (e) => {
+      console.log("playing");
       progressFill.style.width =
         ((soundA.currentTime / soundA.duration) * 100 || 0) + "%";
       requestAnimationFrame(stepA);
-    })
+    });
 
     //playSoundB
-    soundB.addEventListener('playing', e => {
-      console.log('playing B');
+    soundB.addEventListener("playing", (e) => {
+      console.log("playing B");
       progressFill.style.width =
         ((soundB.currentTime / soundB.duration) * 100 || 0) + "%";
-      requestAnimationFrame(stepA);
-    })
-
+      requestAnimationFrame(stepB);
+    });
 
     // playPause
-    playButton.addEventListener('click', e => {
+    playButton.addEventListener("click", (e) => {
       if (soundA.paused & soundB.paused) {
         let soundATime = soundA.currentTime;
         let soundBTime = soundB.currentTime;
@@ -119,9 +103,8 @@ function initPlayers(players) {
       }
     });
 
-
     // stop
-    stopButton.addEventListener('click', e => {
+    stopButton.addEventListener("click", (e) => {
       playButton.innerHTML = playIcon;
       aButton.disabled = false;
       bButton.disabled = true;
@@ -132,8 +115,6 @@ function initPlayers(players) {
       soundB.pause();
       soundB.currentTime = 0;
     });
-
-
 
     //Check for mobile to enable audio playback without waiting for download status.
     if (
@@ -193,6 +174,7 @@ function initPlayers(players) {
         ((soundA.currentTime / soundA.duration) * 100 || 0) + "%";
       requestAnimationFrame(stepA);
     }
+
     function stepB() {
       progressFill.style.width =
         ((soundB.currentTime / soundB.duration) * 100 || 0) + "%";
@@ -221,15 +203,28 @@ function initPlayers(players) {
         soundA.pause();
         soundB.pause();
       }
-    };
+    }
 
-
-    // set auto ids
-    let allAudio = document.querySelectorAll('audio');
+    // optional: set auto ids
+    let allAudio = document.querySelectorAll("audio");
     allAudio.forEach((audio, i) => {
-      audio.id = 'audio_' + i
+      audio.id = "audio_" + i;
     });
-
+    
+    // rewind all at end
+    allAudio.forEach((audio) => {
+      //audio.pause();
+      audio.addEventListener("ended", (e) => {
+        audio.currentTime = 0;
+        progressFill.style.width = "0%";
+      });
+    });
+    
+    function pauseAll() {
+      let allAudio = document.querySelectorAll("audio");
+      allAudio.forEach((audio) => {
+        audio.pause();
+      });
+    }
   });
-
 }
